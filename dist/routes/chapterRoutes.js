@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const chapterController_1 = require("../controllers/chapterController");
+const entityValidationMiddleware_1 = require("../middleware/entityValidationMiddleware");
+const entityValidationExtraMiddleware_1 = require("../middleware/entityValidationExtraMiddleware");
+const roleMiddleware_1 = require("../middleware/roleMiddleware");
+const asyncHandler_1 = require("../utils/asyncHandler");
+const router = (0, express_1.Router)();
+const canRead = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN", "STUDENT");
+const canWrite = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN");
+router.get("/", canRead, (0, asyncHandler_1.asyncHandler)(chapterController_1.getChapters));
+router.get("/:id", canRead, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(chapterController_1.getChapterById));
+router.post("/", canWrite, entityValidationExtraMiddleware_1.validateChapterCreate, (0, asyncHandler_1.asyncHandler)(chapterController_1.createChapter));
+router.put("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, entityValidationExtraMiddleware_1.validateChapterUpdate, (0, asyncHandler_1.asyncHandler)(chapterController_1.updateChapter));
+router.delete("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(chapterController_1.deleteChapter));
+exports.default = router;

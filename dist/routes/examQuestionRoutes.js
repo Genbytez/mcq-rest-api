@@ -1,0 +1,17 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const examQuestionController_1 = require("../controllers/examQuestionController");
+const entityValidationMiddleware_1 = require("../middleware/entityValidationMiddleware");
+const entityValidationExtraMiddleware_1 = require("../middleware/entityValidationExtraMiddleware");
+const roleMiddleware_1 = require("../middleware/roleMiddleware");
+const asyncHandler_1 = require("../utils/asyncHandler");
+const router = (0, express_1.Router)();
+const canRead = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN", "STUDENT");
+const canWrite = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN");
+router.get("/", canRead, (0, asyncHandler_1.asyncHandler)(examQuestionController_1.getExamQuestions));
+router.get("/:id", canRead, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(examQuestionController_1.getExamQuestionById));
+router.post("/", canWrite, entityValidationExtraMiddleware_1.validateExamQuestionCreate, (0, asyncHandler_1.asyncHandler)(examQuestionController_1.createExamQuestion));
+router.put("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, entityValidationExtraMiddleware_1.validateExamQuestionUpdate, (0, asyncHandler_1.asyncHandler)(examQuestionController_1.updateExamQuestion));
+router.delete("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(examQuestionController_1.deleteExamQuestion));
+exports.default = router;

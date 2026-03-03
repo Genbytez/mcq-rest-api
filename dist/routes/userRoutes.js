@@ -1,0 +1,16 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const userController_1 = require("../controllers/userController");
+const entityValidationMiddleware_1 = require("../middleware/entityValidationMiddleware");
+const roleMiddleware_1 = require("../middleware/roleMiddleware");
+const asyncHandler_1 = require("../utils/asyncHandler");
+const router = (0, express_1.Router)();
+const canRead = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN", "STUDENT");
+const canWrite = (0, roleMiddleware_1.requireRoles)("SUPER_ADMIN", "ADMIN");
+router.get("/", canRead, (0, asyncHandler_1.asyncHandler)(userController_1.getUsers));
+router.get("/:id", canRead, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(userController_1.getUserById));
+router.post("/", canWrite, entityValidationMiddleware_1.validateUserCreate, (0, asyncHandler_1.asyncHandler)(userController_1.createUser));
+router.put("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, entityValidationMiddleware_1.validateUserUpdate, (0, asyncHandler_1.asyncHandler)(userController_1.updateUser));
+router.delete("/:id", canWrite, entityValidationMiddleware_1.validateIdParam, (0, asyncHandler_1.asyncHandler)(userController_1.deleteUser));
+exports.default = router;
