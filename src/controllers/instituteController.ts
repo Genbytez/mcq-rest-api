@@ -36,7 +36,7 @@ export const createInstitute = async (req: Request, res: Response) => {
   try {
     const actorId = (req as AuthRequest).decoded?.userId ?? null;
     const repo = AppDataSource.getRepository(Institute);
-    const { code, name, address, isActive, phoneNumber } = req.body as {
+    const { code, name, address, isActive, phoneNumber, email } = req.body as {
       code: string;
       name: string;
       address?: string | null;
@@ -56,6 +56,7 @@ export const createInstitute = async (req: Request, res: Response) => {
       name,
       address: address ?? null,
       phoneNumber: phoneNumber ?? null,
+      email: email ?? null,
       logo,
       isActive: toBoolean(isActive, true),
       createdBy: actorId,
@@ -145,6 +146,7 @@ export const updateInstitute = async (req: Request, res: Response) => {
     if (name !== undefined) item.name = name;
     if (address !== undefined) item.address = address ?? null;
     if (phoneNumber !== undefined) item.phoneNumber = phoneNumber ?? null;
+    if (email !== undefined) item.email = email ?? null;
     if (isActive !== undefined) item.isActive = toBoolean(isActive, item.isActive);
     item.updatedBy = actorId;
 

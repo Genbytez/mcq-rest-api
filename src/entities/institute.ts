@@ -27,6 +27,9 @@ export class Institute {
   @Column({ name: "phone_number", type: "varchar", length: 20, nullable: true })
   phoneNumber!: string | null;
 
+  @Column({ type: "varchar", length: 255, nullable: true })
+  email!: string | null;
+
   @Column({ name: "is_active", type: "boolean", default: true })
   isActive!: boolean;
 
