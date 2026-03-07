@@ -21,6 +21,12 @@ export class Institute {
   @Column({ type: "varchar", length: 500, nullable: true })
   address!: string | null;
 
+  @Column({ type: "varchar", length: 255, nullable: true })
+  logo!: string | null;
+
+  @Column({ name: "phone_number", type: "varchar", length: 20, nullable: true })
+  phoneNumber!: string | null;
+
   @Column({ name: "is_active", type: "boolean", default: true })
   isActive!: boolean;
 

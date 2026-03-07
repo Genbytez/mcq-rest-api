@@ -20,12 +20,15 @@ export const createInstitute = async (req: Request, res: Response) => {
   try {
     const actorId = (req as AuthRequest).decoded?.userId ?? null;
     const repo = AppDataSource.getRepository(Institute);
-    const { code, name, address, isActive } = req.body as {
+    const { code, name, address, isActive, phoneNumber } = req.body as {
       code: string;
       name: string;
       address?: string | null;
       isActive?: unknown;
+      phoneNumber?: string | null;
+      email?: string | null;
     };
+    const logo = req.file ? `/assets/logos/${req.file.filename}` : null;
 
     const existing = await repo.findOne({ where: { code } });
     if (existing) {
@@ -36,6 +39,8 @@ export const createInstitute = async (req: Request, res: Response) => {
       code,
       name,
       address: address ?? null,
+      phoneNumber: phoneNumber ?? null,
+      logo,
       isActive: toBoolean(isActive, true),
       createdBy: actorId,
       updatedBy: actorId,
@@ -97,12 +102,18 @@ export const updateInstitute = async (req: Request, res: Response) => {
     const item = await repo.findOne({ where: { id: req.params.id } });
     if (!item) return res.status(404).json({ success: false, error: "Institute not found" });
 
-    const { code, name, address, isActive } = req.body as {
+    const { code, name, address, isActive, email, phoneNumber } = req.body as {
       code?: string;
       name?: string;
       address?: string | null;
       isActive?: unknown;
+      email?: string | null;
+      phoneNumber?: string | null;
     };
+
+    if (req.file) {
+      item.logo = `/assets/logos/${req.file.filename}`;
+    }
 
     if (code !== undefined && code !== item.code) {
       const existing = await repo.findOne({ where: { code } });
@@ -114,6 +125,7 @@ export const updateInstitute = async (req: Request, res: Response) => {
 
     if (name !== undefined) item.name = name;
     if (address !== undefined) item.address = address ?? null;
+    if (phoneNumber !== undefined) item.phoneNumber = phoneNumber ?? null;
     if (isActive !== undefined) item.isActive = toBoolean(isActive, item.isActive);
     item.updatedBy = actorId;
 

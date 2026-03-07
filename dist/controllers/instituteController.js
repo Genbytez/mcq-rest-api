@@ -26,6 +26,7 @@ const createInstitute = async (req, res) => {
             code,
             name,
             address: address ?? null,
+            email,
             isActive: toBoolean(isActive, true),
             createdBy: actorId,
             updatedBy: actorId,

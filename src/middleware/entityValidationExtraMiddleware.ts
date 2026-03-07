@@ -49,6 +49,7 @@ export const validateInstituteCreate = (req: Request, res: Response, next: NextF
   if (!isNonEmptyString(req.body.code)) errors.push("code is required");
   if (!isNonEmptyString(req.body.name)) errors.push("name is required");
   if (!isOptionalString(req.body.address)) errors.push("address must be string or null");
+  if (req.body.phoneNumber !== undefined && !isOptionalString(req.body.phoneNumber)) errors.push("phoneNumber must be string or null");
   if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive)) errors.push("isActive must be boolean");
   if (errors.length > 0) return sendErrors(res, errors);
   next();
@@ -56,13 +57,14 @@ export const validateInstituteCreate = (req: Request, res: Response, next: NextF
 
 export const validateInstituteUpdate = (req: Request, res: Response, next: NextFunction) => {
   if (!requireBody(req, res)) return;
-  if (!hasAny(req.body, ["code", "name", "address", "isActive"])) {
+  if (!hasAny(req.body, ["code", "name", "address", "isActive", "phoneNumber"])) {
     return sendErrors(res, ["At least one updatable field is required"]);
   }
   const errors: string[] = [];
   if (req.body.code !== undefined && !isNonEmptyString(req.body.code)) errors.push("code must be non-empty string");
   if (req.body.name !== undefined && !isNonEmptyString(req.body.name)) errors.push("name must be non-empty string");
   if (req.body.address !== undefined && !isOptionalString(req.body.address)) errors.push("address must be string or null");
+  if (req.body.phoneNumber !== undefined && !isOptionalString(req.body.phoneNumber)) errors.push("phoneNumber must be string or null");
   if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive)) errors.push("isActive must be boolean");
   if (errors.length > 0) return sendErrors(res, errors);
   next();

@@ -37,7 +37,7 @@ const makeStorage = (folder: string) => {
     destination: (_req, _file, cb) => cb(null, uploadDir),
     filename: (_req, file, cb) => {
       const ext = path.extname(file.originalname);
-      const baseName = path.basename(file.originalname, ext);
+      const baseName = path.basename(file.originalname, ext).replace(/[^a-z0-9]/gi, "_").toLowerCase();
       cb(null, `${baseName}-${Date.now()}${ext}`);
     },
   });
@@ -45,5 +45,6 @@ const makeStorage = (folder: string) => {
 
 // Middlewares
 export const uploadAvatar = multer({ storage: makeStorage("avatar") });
-export const uploadRoom   = multer({ storage: makeStorage("rooms") });
+export const uploadRoom = multer({ storage: makeStorage("rooms") });
+export const uploadLogo = multer({ storage: makeStorage("logos") });
 
