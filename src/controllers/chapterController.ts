@@ -43,10 +43,11 @@ export const createChapter = async (req: Request, res: Response) => {
   try {
     const actorId = (req as AuthRequest).decoded?.userId ?? null;
     const repo = AppDataSource.getRepository(Chapter);
-    const { instituteId, subjectId, name, sortOrder, isActive } = req.body as {
+    const { instituteId, subjectId, name, description, sortOrder, isActive } = req.body as {
       instituteId: string;
       subjectId: string;
       name: string;
+      description?: string | null;
       sortOrder?: unknown;
       isActive?: unknown;
     };
@@ -58,6 +59,7 @@ export const createChapter = async (req: Request, res: Response) => {
       instituteId,
       subjectId,
       name,
+      description: description ?? null,
       sortOrder: toInt(sortOrder, 0),
       isActive: toBoolean(isActive, true),
       createdBy: actorId,
@@ -80,7 +82,7 @@ export const getChapters = async (req: Request, res: Response) => {
 
     const repo = AppDataSource.getRepository(Chapter);
     const items = await repo.find({
-      relations: { institute: true, subject: true },
+      relations: { institute: true, subject: { department: true } },
       order: { id: "ASC" },
     });
     const search = q?.toLowerCase();
@@ -110,7 +112,7 @@ export const getChapterById = async (req: Request, res: Response) => {
     const repo = AppDataSource.getRepository(Chapter);
     const item = await repo.findOne({
       where: { id: req.params.id },
-      relations: { institute: true, subject: true },
+      relations: { institute: true, subject: { department: true } },
     });
     if (!item) return res.status(404).json({ success: false, error: "Chapter not found" });
     return res.json({ success: true, data: item });
@@ -126,10 +128,11 @@ export const updateChapter = async (req: Request, res: Response) => {
     const item = await repo.findOne({ where: { id: req.params.id } });
     if (!item) return res.status(404).json({ success: false, error: "Chapter not found" });
 
-    const { instituteId, subjectId, name, sortOrder, isActive } = req.body as {
+    const { instituteId, subjectId, name, description, sortOrder, isActive } = req.body as {
       instituteId?: string;
       subjectId?: string;
       name?: string;
+      description?: string | null;
       sortOrder?: unknown;
       isActive?: unknown;
     };
@@ -143,6 +146,7 @@ export const updateChapter = async (req: Request, res: Response) => {
     item.instituteId = nextInstituteId;
     item.subjectId = nextSubjectId;
     if (name !== undefined) item.name = name;
+    if (description !== undefined) item.description = description ?? null;
     if (sortOrder !== undefined) item.sortOrder = toInt(sortOrder, item.sortOrder);
     if (isActive !== undefined) item.isActive = toBoolean(isActive, item.isActive);
     item.updatedBy = actorId;

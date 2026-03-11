@@ -18,6 +18,9 @@ export class Chapter {
   @Column({ type: "varchar", length: 200 })
   name!: string;
 
+  @Column({ type: "varchar", length: 500, nullable: true })
+  description!: string | null;
+
   @Column({ name: "sort_order", type: "int", default: () => "0" })
   sortOrder!: number;
 
