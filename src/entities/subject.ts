@@ -1,5 +1,6 @@
 import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Institute } from "./institute";
+import { Department } from "./department";
 import { Level } from "./level";
 import { Chapter } from "./chapter";
 import { Question } from "./question";
@@ -13,6 +14,10 @@ export class Subject {
   @Index()
   @Column({ name: "institute_id", type: "bigint" })
   instituteId!: string;
+
+  @Index()
+  @Column({ name: "department_id", type: "bigint", nullable: true })
+  departmentId!: string | null;
 
   @Index()
   @Column({ name: "level_id", type: "bigint" })
@@ -50,6 +55,10 @@ export class Subject {
   @ManyToOne(() => Institute, (i) => i.subjects, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "institute_id" })
   institute!: Institute;
+
+  @ManyToOne(() => Department, (d) => d.subjects, { onDelete: "RESTRICT", nullable: true })
+  @JoinColumn({ name: "department_id" })
+  department!: Department | null;
 
   @ManyToOne(() => Level, (l) => l.subjects, { onDelete: "RESTRICT" })
   @JoinColumn({ name: "level_id" })

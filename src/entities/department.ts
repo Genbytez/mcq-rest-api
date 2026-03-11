@@ -1,5 +1,6 @@
-import { Column, Entity, Index, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, Index, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { Institute } from "./institute";
+import { Subject } from "./subject";
 
 @Entity({ name: "department" })
 export class Department {
@@ -42,4 +43,7 @@ export class Department {
     @ManyToOne(() => Institute, (i) => i.departments, { onDelete: "RESTRICT" })
     @JoinColumn({ name: "institute_id" })
     institute!: Institute;
+
+    @OneToMany(() => Subject, (s) => s.department)
+    subjects!: Subject[];
 }
