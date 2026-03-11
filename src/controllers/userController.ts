@@ -34,6 +34,8 @@ export const createUser = async (req: Request, res: Response) => {
       mobile,
       password,
       status,
+      batchFrom,
+      batchTo,
     } = req.body as {
       instituteId: string;
       roleId: string;
@@ -43,6 +45,8 @@ export const createUser = async (req: Request, res: Response) => {
       mobile?: string | null;
       password: string;
       status?: UserAccount["status"];
+      batchFrom?: Date | null;
+      batchTo?: Date | null;
     };
 
     const institute = await instituteRepo.findOne({ where: { id: instituteId } });
@@ -73,6 +77,8 @@ export const createUser = async (req: Request, res: Response) => {
       mobile: mobile ?? null,
       passwordHash,
       status,
+      batchFrom: batchFrom ?? null,
+      batchTo: batchTo ?? null,
       createdBy: actorId,
       updatedBy: actorId,
     });
@@ -166,6 +172,8 @@ export const updateUser = async (req: Request, res: Response) => {
       mobile,
       password,
       status,
+      batchFrom,
+      batchTo,
     } = req.body as {
       instituteId?: string;
       roleId?: string;
@@ -175,6 +183,8 @@ export const updateUser = async (req: Request, res: Response) => {
       mobile?: string | null;
       password?: string;
       status?: UserAccount["status"];
+      batchFrom?: Date | null;
+      batchTo?: Date | null;
     };
 
     if (instituteId !== undefined) {
@@ -217,6 +227,14 @@ export const updateUser = async (req: Request, res: Response) => {
 
     if (status !== undefined) {
       user.status = status;
+    }
+
+    if (batchFrom !== undefined) {
+      user.batchFrom = batchFrom ?? null;
+    }
+
+    if (batchTo !== undefined) {
+      user.batchTo = batchTo ?? null;
     }
 
     if (password !== undefined) {

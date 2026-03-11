@@ -22,15 +22,18 @@ const examRoutes_1 = __importDefault(require("./routes/examRoutes"));
 const examQuestionRoutes_1 = __importDefault(require("./routes/examQuestionRoutes"));
 const examAttemptRoutes_1 = __importDefault(require("./routes/examAttemptRoutes"));
 const attemptAnswerRoutes_1 = __importDefault(require("./routes/attemptAnswerRoutes"));
+const departmentRoutes_1 = __importDefault(require("./routes/departmentRoutes"));
 const authMiddleware_1 = require("./middleware/authMiddleware");
 const errorMiddleware_1 = require("./middleware/errorMiddleware");
 const app = (0, express_1.default)();
+/* -------------------- MIDDLEWARE -------------------- */
 app.use((0, cors_1.default)());
 app.use(express_1.default.json());
 app.use(loggerMiddleware_1.requestLogger);
+/* -------------------- STATIC FILES (IMPORTANT FOR IMAGES) -------------------- */
+/* Serve assets folder (logos, avatars etc.) */
 app.use("/assets", express_1.default.static(path_1.default.join(process.cwd(), "assets")));
-const distPath = path_1.default.join(process.cwd(), "dist");
-app.use(express_1.default.static(distPath));
+/* -------------------- ROUTES -------------------- */
 app.use("/api/login", authRoutes_1.default);
 app.use("/api/roles", authMiddleware_1.authMiddleware, roleRoutes_1.default);
 app.use("/api/users", authMiddleware_1.authMiddleware, userRoutes_1.default);
@@ -44,14 +47,20 @@ app.use("/api/exams", authMiddleware_1.authMiddleware, examRoutes_1.default);
 app.use("/api/exam-questions", authMiddleware_1.authMiddleware, examQuestionRoutes_1.default);
 app.use("/api/exam-attempts", authMiddleware_1.authMiddleware, examAttemptRoutes_1.default);
 app.use("/api/attempt-answers", authMiddleware_1.authMiddleware, attemptAnswerRoutes_1.default);
+app.use("/api/departments", authMiddleware_1.authMiddleware, departmentRoutes_1.default);
+/* -------------------- 404 API HANDLER -------------------- */
 app.use("/api", errorMiddleware_1.notFoundHandler);
-app.get("*", (_req, res) => {
-    res.sendFile(path_1.default.join(distPath, "index.html"));
-});
+/* -------------------- ERROR HANDLER -------------------- */
 app.use(errorMiddleware_1.errorHandler);
+/* -------------------- DATABASE + SERVER -------------------- */
 db_1.AppDataSource.initialize()
     .then(() => {
     console.log("Database connected");
-    app.listen(appProperties_1.default.PORT, () => console.log(`Server running on port ${appProperties_1.default.PORT}`));
+    app.listen(appProperties_1.default.PORT, () => {
+        console.log(`🚀 Server running on port ${appProperties_1.default.PORT}`);
+        console.log(`📁 Assets available at: http://localhost:${appProperties_1.default.PORT}/assets`);
+    });
 })
-    .catch((err) => console.error("DB Connection Error:", err));
+    .catch((err) => {
+    console.error("DB Connection Error:", err);
+});

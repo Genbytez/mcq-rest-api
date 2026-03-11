@@ -44,6 +44,12 @@ export class UserAccount {
   @Column({ name: "is_deleted", type: "boolean", default: false })
   isDeleted!: boolean;
 
+  @Column({ name: "batch_from", type: "timestamp", nullable: true })
+  batchFrom!: Date | null;
+
+  @Column({ name: "batch_to", type: "timestamp", nullable: true })
+  batchTo!: Date | null;
+
   @Column({ name: "created_by", type: "bigint", nullable: true })
   createdBy!: string | null;
 

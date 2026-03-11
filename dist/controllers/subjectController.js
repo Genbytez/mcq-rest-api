@@ -4,6 +4,7 @@ exports.deleteSubject = exports.updateSubject = exports.getSubjectById = exports
 const db_1 = require("../config/db");
 const subject_1 = require("../entities/subject");
 const institute_1 = require("../entities/institute");
+const department_1 = require("../entities/department");
 const level_1 = require("../entities/level");
 const pagination_1 = require("../utils/pagination");
 const toBoolean = (value, fallback) => {
@@ -20,11 +21,19 @@ const createSubject = async (req, res) => {
         const actorId = req.decoded?.userId ?? null;
         const subjectRepo = db_1.AppDataSource.getRepository(subject_1.Subject);
         const instituteRepo = db_1.AppDataSource.getRepository(institute_1.Institute);
+        const departmentRepo = db_1.AppDataSource.getRepository(department_1.Department);
         const levelRepo = db_1.AppDataSource.getRepository(level_1.Level);
-        const { instituteId, levelId, name, description, isActive } = req.body;
+        const { instituteId, departmentId, levelId, name, description, isActive } = req.body;
         const institute = await instituteRepo.findOne({ where: { id: instituteId } });
         if (!institute) {
             return res.status(400).json({ success: false, error: "Invalid instituteId" });
+        }
+        const department = await departmentRepo.findOne({ where: { id: departmentId } });
+        if (!department) {
+            return res.status(400).json({ success: false, error: "Invalid departmentId" });
+        }
+        if (department.instituteId !== instituteId) {
+            return res.status(400).json({ success: false, error: "Department does not belong to institute" });
         }
         const level = await levelRepo.findOne({ where: { id: levelId } });
         if (!level) {
@@ -35,6 +44,7 @@ const createSubject = async (req, res) => {
         }
         const subject = subjectRepo.create({
             instituteId,
+            departmentId,
             levelId,
             name,
             description: description ?? null,
@@ -54,11 +64,12 @@ const getSubjects = async (req, res) => {
     try {
         const { page, limit, skip, q } = (0, pagination_1.parsePaginationQuery)(req);
         const instituteId = (0, pagination_1.parseIdQuery)(req.query.instituteId);
+        const departmentId = (0, pagination_1.parseIdQuery)(req.query.departmentId);
         const levelId = (0, pagination_1.parseIdQuery)(req.query.levelId);
         const isActive = (0, pagination_1.parseBooleanQuery)(req.query.isActive);
         const subjectRepo = db_1.AppDataSource.getRepository(subject_1.Subject);
         const subjects = await subjectRepo.find({
-            relations: { institute: true, level: true },
+            relations: { institute: true, department: true, level: true },
             order: { id: "ASC" },
         });
         const search = q?.toLowerCase();
@@ -66,6 +77,8 @@ const getSubjects = async (req, res) => {
             if (subject.isDeleted)
                 return false;
             if (instituteId && subject.instituteId !== instituteId)
+                return false;
+            if (departmentId && subject.departmentId !== departmentId)
                 return false;
             if (levelId && subject.levelId !== levelId)
                 return false;
@@ -91,7 +104,7 @@ const getSubjectById = async (req, res) => {
         const subjectRepo = db_1.AppDataSource.getRepository(subject_1.Subject);
         const subject = await subjectRepo.findOne({
             where: { id: req.params.id },
-            relations: { institute: true, level: true },
+            relations: { institute: true, department: true, level: true },
         });
         if (!subject) {
             return res.status(404).json({ success: false, error: "Subject not found" });
@@ -108,13 +121,15 @@ const updateSubject = async (req, res) => {
         const actorId = req.decoded?.userId ?? null;
         const subjectRepo = db_1.AppDataSource.getRepository(subject_1.Subject);
         const instituteRepo = db_1.AppDataSource.getRepository(institute_1.Institute);
+        const departmentRepo = db_1.AppDataSource.getRepository(department_1.Department);
         const levelRepo = db_1.AppDataSource.getRepository(level_1.Level);
         const subject = await subjectRepo.findOne({ where: { id: req.params.id } });
         if (!subject) {
             return res.status(404).json({ success: false, error: "Subject not found" });
         }
-        const { instituteId, levelId, name, description, isActive } = req.body;
+        const { instituteId, departmentId, levelId, name, description, isActive } = req.body;
         const nextInstituteId = instituteId ?? subject.instituteId;
+        const nextDepartmentId = departmentId ?? subject.departmentId;
         const nextLevelId = levelId ?? subject.levelId;
         if (instituteId !== undefined) {
             const institute = await instituteRepo.findOne({ where: { id: instituteId } });
@@ -123,12 +138,25 @@ const updateSubject = async (req, res) => {
             }
             subject.instituteId = instituteId;
         }
+        if (departmentId !== undefined) {
+            const department = await departmentRepo.findOne({ where: { id: departmentId } });
+            if (!department) {
+                return res.status(400).json({ success: false, error: "Invalid departmentId" });
+            }
+            subject.departmentId = departmentId;
+        }
         if (levelId !== undefined) {
             const level = await levelRepo.findOne({ where: { id: levelId } });
             if (!level) {
                 return res.status(400).json({ success: false, error: "Invalid levelId" });
             }
             subject.levelId = levelId;
+        }
+        if (nextDepartmentId) {
+            const department = await departmentRepo.findOne({ where: { id: nextDepartmentId } });
+            if (!department || department.instituteId !== nextInstituteId) {
+                return res.status(400).json({ success: false, error: "Department does not belong to institute" });
+            }
         }
         const level = await levelRepo.findOne({ where: { id: nextLevelId } });
         if (!level || level.instituteId !== nextInstituteId) {

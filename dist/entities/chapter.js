@@ -35,6 +35,10 @@ __decorate([
     __metadata("design:type", String)
 ], Chapter.prototype, "name", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 500, nullable: true }),
+    __metadata("design:type", Object)
+], Chapter.prototype, "description", void 0);
+__decorate([
     (0, typeorm_1.Column)({ name: "sort_order", type: "int", default: () => "0" }),
     __metadata("design:type", Number)
 ], Chapter.prototype, "sortOrder", void 0);

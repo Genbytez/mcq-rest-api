@@ -69,6 +69,14 @@ __decorate([
     __metadata("design:type", Boolean)
 ], UserAccount.prototype, "isDeleted", void 0);
 __decorate([
+    (0, typeorm_1.Column)({ name: "batch_from", type: "timestamp", nullable: true }),
+    __metadata("design:type", Object)
+], UserAccount.prototype, "batchFrom", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "batch_to", type: "timestamp", nullable: true }),
+    __metadata("design:type", Object)
+], UserAccount.prototype, "batchTo", void 0);
+__decorate([
     (0, typeorm_1.Column)({ name: "created_by", type: "bigint", nullable: true }),
     __metadata("design:type", Object)
 ], UserAccount.prototype, "createdBy", void 0);

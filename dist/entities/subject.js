@@ -12,6 +12,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.Subject = void 0;
 const typeorm_1 = require("typeorm");
 const institute_1 = require("./institute");
+const department_1 = require("./department");
 const level_1 = require("./level");
 const chapter_1 = require("./chapter");
 const question_1 = require("./question");
@@ -28,6 +29,11 @@ __decorate([
     (0, typeorm_1.Column)({ name: "institute_id", type: "bigint" }),
     __metadata("design:type", String)
 ], Subject.prototype, "instituteId", void 0);
+__decorate([
+    (0, typeorm_1.Index)(),
+    (0, typeorm_1.Column)({ name: "department_id", type: "bigint", nullable: true }),
+    __metadata("design:type", Object)
+], Subject.prototype, "departmentId", void 0);
 __decorate([
     (0, typeorm_1.Index)(),
     (0, typeorm_1.Column)({ name: "level_id", type: "bigint" }),
@@ -75,6 +81,11 @@ __decorate([
     (0, typeorm_1.JoinColumn)({ name: "institute_id" }),
     __metadata("design:type", institute_1.Institute)
 ], Subject.prototype, "institute", void 0);
+__decorate([
+    (0, typeorm_1.ManyToOne)(() => department_1.Department, (d) => d.subjects, { onDelete: "RESTRICT", nullable: true }),
+    (0, typeorm_1.JoinColumn)({ name: "department_id" }),
+    __metadata("design:type", Object)
+], Subject.prototype, "department", void 0);
 __decorate([
     (0, typeorm_1.ManyToOne)(() => level_1.Level, (l) => l.subjects, { onDelete: "RESTRICT" }),
     (0, typeorm_1.JoinColumn)({ name: "level_id" }),

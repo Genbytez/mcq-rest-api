@@ -1,8 +1,12 @@
 "use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteInstitute = exports.updateInstitute = exports.getInstituteById = exports.getInstitutes = exports.createInstitute = void 0;
 const db_1 = require("../config/db");
 const institute_1 = require("../entities/institute");
+const appProperties_1 = __importDefault(require("../config/appProperties"));
 const pagination_1 = require("../utils/pagination");
 const toBoolean = (value, fallback) => {
     if (typeof value === "boolean")
@@ -13,11 +17,28 @@ const toBoolean = (value, fallback) => {
         return false;
     return fallback;
 };
+const formatLogoPath = (logo) => {
+    if (!logo)
+        return null;
+    // If it's already a full URL, return as is
+    if (logo.startsWith("http"))
+        return logo;
+    const baseUrl = `http://localhost:${appProperties_1.default.PORT}`;
+    // If it starts with /assets/, prepend the baseUrl
+    if (logo.startsWith("/assets/"))
+        return `${baseUrl}${logo}`;
+    // If it starts with assets/, prepend baseUrl and a slash
+    if (logo.startsWith("assets/"))
+        return `${baseUrl}/${logo}`;
+    // Otherwise, prepend /assets/
+    return `${baseUrl}/assets/${logo}`;
+};
 const createInstitute = async (req, res) => {
     try {
         const actorId = req.decoded?.userId ?? null;
         const repo = db_1.AppDataSource.getRepository(institute_1.Institute);
-        const { code, name, address, isActive } = req.body;
+        const { code, name, address, isActive, phoneNumber, email } = req.body;
+        const logo = req.file ? `/assets/logos/${req.file.filename}` : null;
         const existing = await repo.findOne({ where: { code } });
         if (existing) {
             return res.status(409).json({ success: false, error: "Institute code already exists" });
@@ -26,13 +47,15 @@ const createInstitute = async (req, res) => {
             code,
             name,
             address: address ?? null,
-            email,
+            phoneNumber: phoneNumber ?? null,
+            email: email ?? null,
+            logo,
             isActive: toBoolean(isActive, true),
             createdBy: actorId,
             updatedBy: actorId,
         });
         const saved = await repo.save(institute);
-        return res.status(201).json({ success: true, data: saved });
+        return res.status(201).json({ success: true, data: { ...saved, logo: formatLogoPath(saved.logo) } });
     }
     catch (error) {
         return res.status(500).json({ success: false, error: "Failed to create institute" });
@@ -59,7 +82,10 @@ const getInstitutes = async (req, res) => {
             return true;
         });
         const total = filtered.length;
-        const data = (0, pagination_1.paginateArray)(filtered, skip, limit);
+        const data = (0, pagination_1.paginateArray)(filtered, skip, limit).map((item) => ({
+            ...item,
+            logo: formatLogoPath(item.logo),
+        }));
         return res.json({ success: true, data, pagination: (0, pagination_1.buildPagination)(page, limit, total) });
     }
     catch (error) {
@@ -73,7 +99,7 @@ const getInstituteById = async (req, res) => {
         const item = await repo.findOne({ where: { id: req.params.id } });
         if (!item)
             return res.status(404).json({ success: false, error: "Institute not found" });
-        return res.json({ success: true, data: item });
+        return res.json({ success: true, data: { ...item, logo: formatLogoPath(item.logo) } });
     }
     catch (error) {
         return res.status(500).json({ success: false, error: "Failed to fetch institute" });
@@ -87,7 +113,10 @@ const updateInstitute = async (req, res) => {
         const item = await repo.findOne({ where: { id: req.params.id } });
         if (!item)
             return res.status(404).json({ success: false, error: "Institute not found" });
-        const { code, name, address, isActive } = req.body;
+        const { code, name, address, isActive, email, phoneNumber } = req.body;
+        if (req.file) {
+            item.logo = `/assets/logos/${req.file.filename}`;
+        }
         if (code !== undefined && code !== item.code) {
             const existing = await repo.findOne({ where: { code } });
             if (existing) {
@@ -99,11 +128,15 @@ const updateInstitute = async (req, res) => {
             item.name = name;
         if (address !== undefined)
             item.address = address ?? null;
+        if (phoneNumber !== undefined)
+            item.phoneNumber = phoneNumber ?? null;
+        if (email !== undefined)
+            item.email = email ?? null;
         if (isActive !== undefined)
             item.isActive = toBoolean(isActive, item.isActive);
         item.updatedBy = actorId;
         const saved = await repo.save(item);
-        return res.json({ success: true, data: saved });
+        return res.json({ success: true, data: { ...saved, logo: formatLogoPath(saved.logo) } });
     }
     catch (error) {
         return res.status(500).json({ success: false, error: "Failed to update institute" });

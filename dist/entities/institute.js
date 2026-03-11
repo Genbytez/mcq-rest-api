@@ -17,6 +17,7 @@ const subject_1 = require("./subject");
 const chapter_1 = require("./chapter");
 const question_1 = require("./question");
 const exam_1 = require("./exam");
+const department_1 = require("./department");
 let Institute = class Institute {
 };
 exports.Institute = Institute;
@@ -37,6 +38,18 @@ __decorate([
     (0, typeorm_1.Column)({ type: "varchar", length: 500, nullable: true }),
     __metadata("design:type", Object)
 ], Institute.prototype, "address", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    __metadata("design:type", Object)
+], Institute.prototype, "logo", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ name: "phone_number", type: "varchar", length: 20, nullable: true }),
+    __metadata("design:type", Object)
+], Institute.prototype, "phoneNumber", void 0);
+__decorate([
+    (0, typeorm_1.Column)({ type: "varchar", length: 255, nullable: true }),
+    __metadata("design:type", Object)
+], Institute.prototype, "email", void 0);
 __decorate([
     (0, typeorm_1.Column)({ name: "is_active", type: "boolean", default: true }),
     __metadata("design:type", Boolean)
@@ -90,6 +103,10 @@ __decorate([
     (0, typeorm_1.OneToMany)(() => exam_1.Exam, (e) => e.institute),
     __metadata("design:type", Array)
 ], Institute.prototype, "exams", void 0);
+__decorate([
+    (0, typeorm_1.OneToMany)(() => department_1.Department, (d) => d.institute),
+    __metadata("design:type", Array)
+], Institute.prototype, "departments", void 0);
 exports.Institute = Institute = __decorate([
     (0, typeorm_1.Entity)({ name: "institute" })
 ], Institute);

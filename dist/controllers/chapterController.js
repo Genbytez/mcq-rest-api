@@ -39,7 +39,7 @@ const createChapter = async (req, res) => {
     try {
         const actorId = req.decoded?.userId ?? null;
         const repo = db_1.AppDataSource.getRepository(chapter_1.Chapter);
-        const { instituteId, subjectId, name, sortOrder, isActive } = req.body;
+        const { instituteId, subjectId, name, description, sortOrder, isActive } = req.body;
         const error = await ensureLinks(instituteId, subjectId);
         if (error)
             return res.status(400).json({ success: false, error });
@@ -47,6 +47,7 @@ const createChapter = async (req, res) => {
             instituteId,
             subjectId,
             name,
+            description: description ?? null,
             sortOrder: toInt(sortOrder, 0),
             isActive: toBoolean(isActive, true),
             createdBy: actorId,
@@ -68,7 +69,7 @@ const getChapters = async (req, res) => {
         const isActive = (0, pagination_1.parseBooleanQuery)(req.query.isActive);
         const repo = db_1.AppDataSource.getRepository(chapter_1.Chapter);
         const items = await repo.find({
-            relations: { institute: true, subject: true },
+            relations: { institute: true, subject: { department: true } },
             order: { id: "ASC" },
         });
         const search = q?.toLowerCase();
@@ -100,7 +101,7 @@ const getChapterById = async (req, res) => {
         const repo = db_1.AppDataSource.getRepository(chapter_1.Chapter);
         const item = await repo.findOne({
             where: { id: req.params.id },
-            relations: { institute: true, subject: true },
+            relations: { institute: true, subject: { department: true } },
         });
         if (!item)
             return res.status(404).json({ success: false, error: "Chapter not found" });
@@ -118,7 +119,7 @@ const updateChapter = async (req, res) => {
         const item = await repo.findOne({ where: { id: req.params.id } });
         if (!item)
             return res.status(404).json({ success: false, error: "Chapter not found" });
-        const { instituteId, subjectId, name, sortOrder, isActive } = req.body;
+        const { instituteId, subjectId, name, description, sortOrder, isActive } = req.body;
         const nextInstituteId = instituteId ?? item.instituteId;
         const nextSubjectId = subjectId ?? item.subjectId;
         const error = await ensureLinks(nextInstituteId, nextSubjectId);
@@ -128,6 +129,8 @@ const updateChapter = async (req, res) => {
         item.subjectId = nextSubjectId;
         if (name !== undefined)
             item.name = name;
+        if (description !== undefined)
+            item.description = description ?? null;
         if (sortOrder !== undefined)
             item.sortOrder = toInt(sortOrder, item.sortOrder);
         if (isActive !== undefined)

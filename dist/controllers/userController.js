@@ -20,7 +20,7 @@ const createUser = async (req, res) => {
         const userRepo = db_1.AppDataSource.getRepository(users_1.UserAccount);
         const instituteRepo = db_1.AppDataSource.getRepository(institute_1.Institute);
         const roleRepo = db_1.AppDataSource.getRepository(role_1.Role);
-        const { instituteId, roleId, regNo, fullName, email, mobile, password, status, } = req.body;
+        const { instituteId, roleId, regNo, fullName, email, mobile, password, status, batchFrom, batchTo, } = req.body;
         const institute = await instituteRepo.findOne({ where: { id: instituteId } });
         if (!institute) {
             return res.status(400).json({ success: false, error: "Invalid instituteId" });
@@ -45,6 +45,8 @@ const createUser = async (req, res) => {
             mobile: mobile ?? null,
             passwordHash,
             status,
+            batchFrom: batchFrom ?? null,
+            batchTo: batchTo ?? null,
             createdBy: actorId,
             updatedBy: actorId,
         });
@@ -125,7 +127,7 @@ const updateUser = async (req, res) => {
         if (!user) {
             return res.status(404).json({ success: false, error: "User not found" });
         }
-        const { instituteId, roleId, regNo, fullName, email, mobile, password, status, } = req.body;
+        const { instituteId, roleId, regNo, fullName, email, mobile, password, status, batchFrom, batchTo, } = req.body;
         if (instituteId !== undefined) {
             const institute = await instituteRepo.findOne({ where: { id: instituteId } });
             if (!institute) {
@@ -160,6 +162,12 @@ const updateUser = async (req, res) => {
         }
         if (status !== undefined) {
             user.status = status;
+        }
+        if (batchFrom !== undefined) {
+            user.batchFrom = batchFrom ?? null;
+        }
+        if (batchTo !== undefined) {
+            user.batchTo = batchTo ?? null;
         }
         if (password !== undefined) {
             user.passwordHash = await bcryptjs_1.default.hash(password, 10);

@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.validateQuestionUpdate = exports.validateQuestionCreate = exports.validateSubjectUpdate = exports.validateSubjectCreate = exports.validateLevelUpdate = exports.validateLevelCreate = exports.validateUserUpdate = exports.validateUserCreate = exports.validateRoleUpdate = exports.validateRoleCreate = exports.validateIdParam = void 0;
+exports.validateDepartmentUpdate = exports.validateDepartmentCreate = exports.validateQuestionUpdate = exports.validateQuestionCreate = exports.validateSubjectUpdate = exports.validateSubjectCreate = exports.validateLevelUpdate = exports.validateLevelCreate = exports.validateUserUpdate = exports.validateUserCreate = exports.validateRoleUpdate = exports.validateRoleCreate = exports.validateIdParam = void 0;
 const enums_1 = require("../entities/enums");
 const isObject = (value) => typeof value === "object" && value !== null && !Array.isArray(value);
 const isValidId = (value) => {
@@ -390,3 +390,40 @@ const validateQuestionUpdate = (req, res, next) => {
     next();
 };
 exports.validateQuestionUpdate = validateQuestionUpdate;
+const validateDepartmentCreate = (req, res, next) => {
+    if (!requireBody(req, res))
+        return;
+    const errors = [];
+    if (!isValidId(req.body.instituteId))
+        errors.push("instituteId is required and must be valid id");
+    if (!isNonEmptyString(req.body.name))
+        errors.push("name is required");
+    if (!isOptionalString(req.body.description))
+        errors.push("description must be string or null");
+    if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive))
+        errors.push("isActive must be boolean");
+    if (errors.length > 0)
+        return sendErrors(res, errors);
+    next();
+};
+exports.validateDepartmentCreate = validateDepartmentCreate;
+const validateDepartmentUpdate = (req, res, next) => {
+    if (!requireBody(req, res))
+        return;
+    if (!hasAny(req.body, ["instituteId", "name", "description", "isActive"])) {
+        return sendErrors(res, ["At least one updatable field is required"]);
+    }
+    const errors = [];
+    if (req.body.instituteId !== undefined && !isValidId(req.body.instituteId))
+        errors.push("instituteId must be valid id");
+    if (req.body.name !== undefined && !isNonEmptyString(req.body.name))
+        errors.push("name must be non-empty string");
+    if (req.body.description !== undefined && !isOptionalString(req.body.description))
+        errors.push("description must be string or null");
+    if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive))
+        errors.push("isActive must be boolean");
+    if (errors.length > 0)
+        return sendErrors(res, errors);
+    next();
+};
+exports.validateDepartmentUpdate = validateDepartmentUpdate;

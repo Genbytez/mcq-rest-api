@@ -41,6 +41,8 @@ const validateInstituteCreate = (req, res, next) => {
         errors.push("name is required");
     if (!isOptionalString(req.body.address))
         errors.push("address must be string or null");
+    if (req.body.phoneNumber !== undefined && !isOptionalString(req.body.phoneNumber))
+        errors.push("phoneNumber must be string or null");
     if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive))
         errors.push("isActive must be boolean");
     if (errors.length > 0)
@@ -51,7 +53,7 @@ exports.validateInstituteCreate = validateInstituteCreate;
 const validateInstituteUpdate = (req, res, next) => {
     if (!requireBody(req, res))
         return;
-    if (!hasAny(req.body, ["code", "name", "address", "isActive"])) {
+    if (!hasAny(req.body, ["code", "name", "address", "isActive", "phoneNumber"])) {
         return sendErrors(res, ["At least one updatable field is required"]);
     }
     const errors = [];
@@ -61,6 +63,8 @@ const validateInstituteUpdate = (req, res, next) => {
         errors.push("name must be non-empty string");
     if (req.body.address !== undefined && !isOptionalString(req.body.address))
         errors.push("address must be string or null");
+    if (req.body.phoneNumber !== undefined && !isOptionalString(req.body.phoneNumber))
+        errors.push("phoneNumber must be string or null");
     if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive))
         errors.push("isActive must be boolean");
     if (errors.length > 0)
