@@ -5,6 +5,7 @@ import { Subject } from "./subject";
 import { Chapter } from "./chapter";
 import { Question } from "./question";
 import { Exam } from "./exam";
+import { Department } from "./department";
 
 @Entity({ name: "institute" })
 export class Institute {
@@ -59,4 +60,5 @@ export class Institute {
   @OneToMany(() => Chapter, (c) => c.institute) chapters!: Chapter[];
   @OneToMany(() => Question, (q) => q.institute) questions!: Question[];
   @OneToMany(() => Exam, (e) => e.institute) exams!: Exam[];
+  @OneToMany(() => Department, (d) => d.institute) departments!: Department[];
 }

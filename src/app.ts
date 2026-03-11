@@ -18,6 +18,7 @@ import examRoutes from "./routes/examRoutes";
 import examQuestionRoutes from "./routes/examQuestionRoutes";
 import examAttemptRoutes from "./routes/examAttemptRoutes";
 import attemptAnswerRoutes from "./routes/attemptAnswerRoutes";
+import departmentRoutes from "./routes/departmentRoutes";
 
 import { authMiddleware } from "./middleware/authMiddleware";
 import { errorHandler, notFoundHandler } from "./middleware/errorMiddleware";
@@ -50,6 +51,7 @@ app.use("/api/exams", authMiddleware, examRoutes);
 app.use("/api/exam-questions", authMiddleware, examQuestionRoutes);
 app.use("/api/exam-attempts", authMiddleware, examAttemptRoutes);
 app.use("/api/attempt-answers", authMiddleware, attemptAnswerRoutes);
+app.use("/api/departments", authMiddleware, departmentRoutes);
 
 /* -------------------- 404 API HANDLER -------------------- */
 

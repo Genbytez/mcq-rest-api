@@ -387,3 +387,34 @@ export const validateQuestionUpdate = (req: Request, res: Response, next: NextFu
   if (errors.length > 0) return sendErrors(res, errors);
   next();
 };
+
+export const validateDepartmentCreate = (req: Request, res: Response, next: NextFunction) => {
+  if (!requireBody(req, res)) return;
+
+  const errors: string[] = [];
+  if (!isValidId(req.body.instituteId)) errors.push("instituteId is required and must be valid id");
+  if (!isNonEmptyString(req.body.name)) errors.push("name is required");
+  if (!isOptionalString(req.body.description)) errors.push("description must be string or null");
+  if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive)) errors.push("isActive must be boolean");
+
+  if (errors.length > 0) return sendErrors(res, errors);
+  next();
+};
+
+export const validateDepartmentUpdate = (req: Request, res: Response, next: NextFunction) => {
+  if (!requireBody(req, res)) return;
+
+  if (!hasAny(req.body, ["instituteId", "name", "description", "isActive"])) {
+    return sendErrors(res, ["At least one updatable field is required"]);
+  }
+
+  const errors: string[] = [];
+  if (req.body.instituteId !== undefined && !isValidId(req.body.instituteId)) errors.push("instituteId must be valid id");
+  if (req.body.name !== undefined && !isNonEmptyString(req.body.name)) errors.push("name must be non-empty string");
+  if (req.body.description !== undefined && !isOptionalString(req.body.description)) errors.push("description must be string or null");
+  if (req.body.isActive !== undefined && !isBooleanLike(req.body.isActive)) errors.push("isActive must be boolean");
+
+  if (errors.length > 0) return sendErrors(res, errors);
+  next();
+};
+
